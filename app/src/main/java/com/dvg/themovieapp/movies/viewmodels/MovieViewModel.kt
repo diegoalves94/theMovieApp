@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.dvg.themovieapp.movies.models.DataState
+import com.dvg.themovieapp.movies.models.Event
 import com.dvg.themovieapp.movies.models.Movie
 import kotlin.random.Random
 
@@ -19,20 +20,26 @@ class MovieViewModel : ViewModel() {
 
     val navigationToDetailsLiveData
         get() = _navigationToDetailsLiveData
-    private val _navigationToDetailsLiveData = MutableLiveData<Unit>()
+    private val _navigationToDetailsLiveData = MutableLiveData<Event<Unit>>()
 
     val appState: LiveData<DataState>
         get() = _appState
     private val _appState = MutableLiveData<DataState>()
 
     init {
+        _appState.postValue(DataState.LOADING)
+        getMoviesData()
+    }
+
+    private fun getMoviesData(){
         _movieListLiveData.postValue(setMoviesList())
+        _appState.postValue(DataState.SUCCESS)
     }
 
     private fun setMoviesList(): MutableList<Movie> {
-        val comics = mutableListOf<Movie>()
+        val movies = mutableListOf<Movie>()
         for (i in 0..10) {
-            comics.add(
+            movies.add(
                 Movie(
                     "Super Movie Hero $i: Too hero!",
                     "Rating: ${Random.nextInt(50, 100)}%",
@@ -40,13 +47,15 @@ class MovieViewModel : ViewModel() {
                 )
             )
         }
-        return comics
+        return movies
     }
 
     fun onMovieSelected(position: Int) {
         val movieDetails = _movieListLiveData.value?.get(position)
-        _movieDetailsLiveData.postValue(movieDetails!!)
-        _navigationToDetailsLiveData.postValue(Unit)
+        movieDetails.let {
+            _movieDetailsLiveData.value = it
+            _navigationToDetailsLiveData.postValue(Event(Unit))
+        }
     }
 
 }

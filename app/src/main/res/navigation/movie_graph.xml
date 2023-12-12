@@ -7,7 +7,7 @@
     <fragment
         android:id="@+id/moviesFragment"
         android:name="com.dvg.themovieapp.movies.fragments.MoviesFragment"
-        android:label="fragment_movies"
+        android:label="Movies"
         tools:layout="@layout/fragment_movies" >
         <action
             android:id="@+id/action_moviesFragment_to_movieDetailsFragment"
@@ -16,6 +16,11 @@
     <fragment
         android:id="@+id/movieDetailsFragment"
         android:name="com.dvg.themovieapp.movies.fragments.MovieDetailsFragment"
-        android:label="fragment_movie_details"
-        tools:layout="@layout/fragment_movie_details" />
+        tools:layout="@layout/fragment_movie_details">
+
+        <argument
+            android:name="name"
+            app:argType="com.dvg.themovieapp.movies.models.Movie"
+            app:nullable="true" />
+    </fragment>
 </navigation>

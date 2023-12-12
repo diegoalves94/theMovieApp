@@ -18,7 +18,9 @@ import com.dvg.themovieapp.movies.viewmodels.MovieViewModel
 
 class MoviesFragment : Fragment(), OnMovieItemClickListener {
 
-    private val viewModel by navGraphViewModels<MovieViewModel>(R.id.moviesFragment) { defaultViewModelProviderFactory }
+    private val viewModel by navGraphViewModels<MovieViewModel>(R.id.movie_graph) {
+        defaultViewModelProviderFactory
+    }
     private lateinit var adapter: MovieListAdapter
 
     override fun onCreateView(

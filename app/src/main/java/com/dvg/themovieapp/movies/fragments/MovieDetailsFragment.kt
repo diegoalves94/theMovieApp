@@ -13,17 +13,22 @@ import com.dvg.themovieapp.movies.viewmodels.MovieViewModel
 
 class MovieDetailsFragment : Fragment() {
 
-    private lateinit var binding: FragmentMovieDetailsBinding
     private val viewModel by navGraphViewModels<MovieViewModel>(R.id.movie_graph) { defaultViewModelProviderFactory }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding =
-            DataBindingUtil.inflate(inflater, R.layout.fragment_movie_details, container, false)
+        val binding: FragmentMovieDetailsBinding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_movie_details,
+            container,
+            false
+        )
         binding.lifecycleOwner = viewLifecycleOwner
         binding.movieViewModel = viewModel
+
+        viewModel.movieDetailsLiveData.value?.name
 
         return binding.root
     }
