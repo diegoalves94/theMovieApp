@@ -3,11 +3,9 @@ package com.dvg.themovieapp.movies.fragments
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
 import com.dvg.themovieapp.R
@@ -28,36 +26,45 @@ class MoviesFragment : Fragment(), OnMovieItemClickListener {
         savedInstanceState: Bundle?
     ): View {
         val binding = FragmentMoviesBinding.inflate(inflater)
-        val view = binding.root as RecyclerView
+        val view = binding.root
+        val moviesList = binding.list
+
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
 
         adapter = MovieListAdapter(this@MoviesFragment)
-
-        view.apply {
+        moviesList.apply {
             this.adapter = this@MoviesFragment.adapter
             this.layoutManager = LinearLayoutManager(context)
         }
 
         initObservers()
+
         return view
     }
 
     private fun initObservers() {
-        viewModel.movieListLiveData.observe(viewLifecycleOwner, Observer {
+        viewModel.movieListLiveData.observe(viewLifecycleOwner) {
             it?.let {
                 adapter.updateData(it)
             }
-        })
+        }
 
-        viewModel.navigationToDetailsLiveData.observe(viewLifecycleOwner, Observer {
-            it?.let {
-                val action = MoviesFragmentDirections.actionMoviesFragmentToMovieDetailsFragment()
-                findNavController().navigate(action)
-            }
-        })
+//        TODO("Refatorar para funcionar backStack com Livedata")
+//        viewModel.navigationToDetailsLiveData.observe(viewLifecycleOwner, Observer {
+//            it?.let {
+//                findNavController().navigate(
+//                    MoviesFragmentDirections.actionMoviesFragmentToMovieDetailsFragment()
+//                )
+//            }
+//        })
     }
 
 
     override fun onMovieSelected(position: Int) {
         viewModel.onMovieSelected(position)
+        findNavController().navigate(
+            MoviesFragmentDirections.actionMoviesFragmentToMovieDetailsFragment()
+        )
     }
 }

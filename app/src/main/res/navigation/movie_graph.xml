@@ -15,12 +15,11 @@
     </fragment>
     <fragment
         android:id="@+id/movieDetailsFragment"
+        android:label="This movie"
         android:name="com.dvg.themovieapp.movies.fragments.MovieDetailsFragment"
         tools:layout="@layout/fragment_movie_details">
-
-        <argument
-            android:name="name"
-            app:argType="com.dvg.themovieapp.movies.models.Movie"
-            app:nullable="true" />
+        <action
+            android:id="@+id/action_movieDetailsFragment_to_moviesFragment"
+            app:destination="@id/moviesFragment" />
     </fragment>
 </navigation>

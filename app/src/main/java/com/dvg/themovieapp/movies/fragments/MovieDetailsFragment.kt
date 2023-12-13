@@ -13,7 +13,9 @@ import com.dvg.themovieapp.movies.viewmodels.MovieViewModel
 
 class MovieDetailsFragment : Fragment() {
 
-    private val viewModel by navGraphViewModels<MovieViewModel>(R.id.movie_graph) { defaultViewModelProviderFactory }
+    private val viewModel by navGraphViewModels<MovieViewModel>(R.id.movie_graph) {
+        defaultViewModelProviderFactory
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

@@ -35,7 +35,7 @@ class MovieListAdapter(
 
     override fun getItemCount(): Int = moviesList.size
 
-    inner class ViewHolder(val binding: FragmentMovieItemBinding) :
+    inner class ViewHolder(private val binding: FragmentMovieItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
         val view: View = binding.root
         fun bindItem(movie: Movie) {
