@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">theMovieApp</string>
+
+    <string name="title_details">Details</string>
+    <string name="label_posters">Posters</string>
+    <string name="message_error">Erro!\nPor favor, tente novamente.</string>
+
 </resources>
