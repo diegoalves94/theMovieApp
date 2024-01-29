@@ -35,7 +35,8 @@
                 app:layout_constraintBottom_toTopOf="@+id/tv_movie_title"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcUrl="@{movieDetailsViewModel.movieDetailsLiveData.posterImagePath}" />
 
             <TextView
                 android:id="@+id/tv_movie_title"
@@ -97,6 +98,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
                 android:layout_marginBottom="16dp"
+                android:visibility="@{movieDetailsViewModel.imagesCarouselState == DataState.ERROR ? View.GONE : View.VISIBLE}"
+                app:imageList="@{movieDetailsViewModel.movieImagesLiveData.posterImages}"
                 app:imageScaleType="center"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -104,27 +107,27 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/constraintLayout"
+                android:id="@+id/cl_movie"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/ic_movie_images"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ProgressBar
-                    android:id="@+id/progressBar"
+                    android:id="@+id/progressBarMovies"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:indeterminate="true"
-                    android:visibility="@{movieDetailsViewModel.appState == DataState.LOADING ? View.VISIBLE : View.GONE}"
+                    android:visibility="@{movieDetailsViewModel.movieState == DataState.LOADING ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/textView"
+                    android:id="@+id/tv_error_movies"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -132,7 +135,29 @@
                     android:textAlignment="center"
                     android:textSize="24sp"
                     android:textStyle="bold"
-                    android:visibility="@{movieDetailsViewModel.appState == DataState.ERROR ? View.VISIBLE : View.GONE}"
+                    android:visibility="@{movieDetailsViewModel.movieState == DataState.ERROR ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_images_carousel"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="@+id/ic_movie_images"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/ic_movie_images">
+
+                <ProgressBar
+                    android:id="@+id/progressBarImageCarousel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    android:visibility="@{movieDetailsViewModel.imagesCarouselState == DataState.LOADING ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

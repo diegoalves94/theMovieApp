@@ -32,7 +32,7 @@ class MoviesFragment : Fragment(), OnMovieItemClickListener {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
-        adapter = MovieListAdapter(requireContext(), this@MoviesFragment)
+        adapter = MovieListAdapter(this@MoviesFragment)
         moviesList.apply {
             this.adapter = this@MoviesFragment.adapter
             this.layoutManager = LinearLayoutManager(context)
@@ -52,9 +52,11 @@ class MoviesFragment : Fragment(), OnMovieItemClickListener {
 
 //        TODO("Refatorar para funcionar backStack com Livedata")
 //        viewModel.navigationToDetailsLiveData.observe(viewLifecycleOwner, Observer {
-//            it?.let {
+//            it.getContentIfNotHandled()?.let {
 //                findNavController().navigate(
-//                    MoviesFragmentDirections.actionMoviesFragmentToMovieDetailsFragment()
+//                    MoviesFragmentDirections.actionMoviesFragmentToMovieDetailsFragment(
+//                        viewModel.movieListLiveData.value?.get(position)?.getMovieId()!!
+//                    )
 //                )
 //            }
 //        })
