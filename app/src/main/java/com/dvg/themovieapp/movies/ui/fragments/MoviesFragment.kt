@@ -1,4 +1,4 @@
-package com.dvg.themovieapp.movies.fragments
+package com.dvg.themovieapp.movies.ui.fragments
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -10,9 +10,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
 import com.dvg.themovieapp.R
 import com.dvg.themovieapp.databinding.FragmentMoviesBinding
-import com.dvg.themovieapp.movies.adapters.MovieListAdapter
-import com.dvg.themovieapp.movies.adapters.OnMovieItemClickListener
-import com.dvg.themovieapp.movies.viewmodels.MovieViewModel
+import com.dvg.themovieapp.movies.ui.adapters.MovieListAdapter
+import com.dvg.themovieapp.movies.ui.adapters.OnMovieItemClickListener
+import com.dvg.themovieapp.movies.ui.viewmodels.MovieViewModel
 
 class MoviesFragment : Fragment(), OnMovieItemClickListener {
 
@@ -32,7 +32,7 @@ class MoviesFragment : Fragment(), OnMovieItemClickListener {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
-        adapter = MovieListAdapter(this@MoviesFragment)
+        adapter = MovieListAdapter(requireContext(), this@MoviesFragment)
         moviesList.apply {
             this.adapter = this@MoviesFragment.adapter
             this.layoutManager = LinearLayoutManager(context)
@@ -62,9 +62,10 @@ class MoviesFragment : Fragment(), OnMovieItemClickListener {
 
 
     override fun onMovieSelected(position: Int) {
-        viewModel.onMovieSelected(position)
         findNavController().navigate(
-            MoviesFragmentDirections.actionMoviesFragmentToMovieDetailsFragment()
+            MoviesFragmentDirections.actionMoviesFragmentToMovieDetailsFragment(
+                viewModel.movieListLiveData.value?.get(position)?.getMovieId()!!
+            )
         )
     }
 }

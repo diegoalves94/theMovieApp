@@ -11,7 +11,7 @@
 
         <variable
             name="viewModel"
-            type="com.dvg.themovieapp.movies.viewmodels.MovieViewModel" />
+            type="com.dvg.themovieapp.movies.ui.viewmodels.MovieViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -29,7 +29,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:context=".movies.fragments.MoviesFragment"
+            tools:context=".movies.ui.fragments.MoviesFragment"
             tools:listitem="@layout/fragment_movie_item" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
