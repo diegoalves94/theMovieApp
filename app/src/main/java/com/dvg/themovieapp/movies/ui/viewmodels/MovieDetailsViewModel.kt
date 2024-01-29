@@ -1,24 +1,18 @@
 package com.dvg.themovieapp.movies.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dvg.themovieapp.movies.data.remote.api.MoviesDbApi
-import com.dvg.themovieapp.movies.data.remote.response.MovieDetailResponse
+import com.dvg.themovieapp.movies.data.remote.api.MoviesDbApi.movieService
 import com.dvg.themovieapp.movies.data.remote.response.MovieMediaResponse
-import com.dvg.themovieapp.movies.models.Backdrop
 import com.dvg.themovieapp.movies.models.DataState
 import com.dvg.themovieapp.movies.models.Movie
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class MovieDetailsViewModel : ViewModel() {
 
-    val selectedMovieId: LiveData<Int>
+    private val selectedMovieId: LiveData<Int>
         get() = _selectedMovieId
     private val _selectedMovieId = MutableLiveData<Int>()
 
@@ -26,68 +20,65 @@ class MovieDetailsViewModel : ViewModel() {
         get() = _movieDetailsLiveData
     private val _movieDetailsLiveData = MutableLiveData<Movie?>()
 
-    val movieImagesLiveData: LiveData<List<Backdrop>?>
+    val movieImagesLiveData: LiveData<MovieMediaResponse?>
         get() = _movieImagesLiveData
-    private val _movieImagesLiveData = MutableLiveData<List<Backdrop>?>()
+    private val _movieImagesLiveData = MutableLiveData<MovieMediaResponse?>()
 
-    val appState: LiveData<DataState>
-        get() = _appState
-    private val _appState = MutableLiveData<DataState>()
+    val movieState: LiveData<DataState>
+        get() = _movieState
+    private val _movieState = MutableLiveData<DataState>()
 
-    init {
-        _appState.postValue(DataState.LOADING)
-    }
+    val imagesCarouselState: LiveData<DataState>
+        get() = _imagesCarouselState
+    private val _imagesCarouselState = MutableLiveData<DataState>()
 
-    fun setMovieData(id:Int){
+    fun setMovieData(id: Int) {
         _selectedMovieId.value = id
-        viewModelScope.launch{
-            getMovieDetails()
-            getMovieImageCaroussel()
+        _movieState.postValue(DataState.LOADING)
+
+        viewModelScope.launch {
+            val response = movieService.getMovieDetails(selectedMovieId.value!!, "en")
+
+            if (response.isSuccessful) {
+                response.body()?.let { movie ->
+
+                    val movieDetails = Movie(
+                        movie.id,
+                        movie.title,
+                        movie.overview,
+                        movie.release_date,
+                        movie.vote_average,
+                        null,
+                        movie.poster_path
+                    )
+
+                    _movieDetailsLiveData.value = movieDetails
+                    _movieState.postValue(DataState.SUCCESS)
+                }
+            } else {
+                _movieState.postValue(DataState.ERROR)
+            }
         }
     }
 
-    private fun getMovieDetails() {
-        MoviesDbApi.movieService.getMovieDetails(selectedMovieId.value!!, "en").enqueue(object: Callback<MovieDetailResponse>{
-            override fun onResponse(
-                call: Call<MovieDetailResponse>,
-                response: Response<MovieDetailResponse>
-            ) {
-                val movieDetails = Movie(
-                    response.body()?.id,
-                    response.body()?.title,
-                    response.body()?.overview,
-                    response.body()?.release_date,
-                    response.body()?.vote_average,
-                    null,
-                    response.body()?.poster_path
-                )
+    fun setMovieImageCarousel() {
+        _imagesCarouselState.postValue(DataState.LOADING)
 
-                _movieDetailsLiveData.value = movieDetails
-                _appState.postValue(DataState.SUCCESS)
-            }
+        viewModelScope.launch {
+            val response = movieService.getMovieMedia(selectedMovieId.value!!)
 
-            override fun onFailure(call: Call<MovieDetailResponse>, t: Throwable) {
-                Log.e("API_MOVIE_DB_ERROR", t.message.toString())
-                _appState.postValue(DataState.ERROR)
-            }
-        })
-    }
-
-    private fun getMovieImageCaroussel(){
-        MoviesDbApi.movieService.getMovieMedia(selectedMovieId.value!!).enqueue(object : Callback<MovieMediaResponse>{
-            override fun onResponse(
-                call: Call<MovieMediaResponse>,
-                response: Response<MovieMediaResponse>
-            ) {
-                if(response.isSuccessful){
-                    _movieImagesLiveData.value = response.body()?.backdrops
+            if (response.isSuccessful) {
+                response.body()?.backdrops?.let {
+                    if (it.isEmpty()) {
+                        _imagesCarouselState.postValue(DataState.ERROR)
+                    } else {
+                        _movieImagesLiveData.value = response.body()
+                        _imagesCarouselState.postValue(DataState.SUCCESS)
+                    }
                 }
+            } else {
+                _imagesCarouselState.postValue(DataState.ERROR)
             }
-
-            override fun onFailure(call: Call<MovieMediaResponse>, t: Throwable) {
-                Log.e("API_MOVIE_DB_ERROR", t.message.toString())
-                _appState.postValue(DataState.ERROR)
-            }
-        })
+        }
     }
 }
