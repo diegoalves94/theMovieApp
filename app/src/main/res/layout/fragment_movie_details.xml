@@ -4,10 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="android.view.View"/>
+
+        <import type="com.dvg.themovieapp.movies.models.DataState" />
+
+        <import type="android.view.View" />
+
         <variable
-            name="movieViewModel"
-            type="com.dvg.themovieapp.movies.viewmodels.MovieViewModel" />
+            name="movieDetailsViewModel"
+            type="com.dvg.themovieapp.movies.ui.viewmodels.MovieDetailsViewModel" />
     </data>
 
     <androidx.core.widget.NestedScrollView
@@ -15,7 +19,7 @@
         android:layout_height="match_parent"
         android:fillViewport="true"
         android:scrollbars="vertical"
-        tools:context=".movies.fragments.MovieDetailsFragment">
+        tools:context=".movies.ui.fragments.MovieDetailsFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -24,10 +28,11 @@
             <ImageView
                 android:id="@+id/iv_movie_poster"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
+                android:layout_height="500dp"
+                android:layout_marginBottom="32dp"
                 android:contentDescription="@string/description_movie_poster"
                 android:scaleType="centerCrop"
-                android:src="@drawable/placeholder"
+                app:layout_constraintBottom_toTopOf="@+id/tv_movie_title"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -39,7 +44,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
-                android:text="@{movieViewModel.movieDetailsLiveData.name}"
+                android:text="@{movieDetailsViewModel.movieDetailsLiveData.title}"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -54,7 +59,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:text="@{movieViewModel.movieDetailsLiveData.ratings}"
+                android:text="@{movieDetailsViewModel.movieDetailsLiveData.voteAverage}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_movie_title" />
@@ -67,7 +72,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="24dp"
-                android:text="@{movieViewModel.movieDetailsLiveData.synopsis}"
+                android:text="@{movieDetailsViewModel.movieDetailsLiveData.overview}"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toTopOf="@+id/tv_label_posters"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -92,10 +97,48 @@
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
                 android:layout_marginBottom="16dp"
+                app:imageScaleType="center"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintLayout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    android:visibility="@{movieDetailsViewModel.appState == DataState.LOADING ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/message_error"
+                    android:textAlignment="center"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:visibility="@{movieDetailsViewModel.appState == DataState.ERROR ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

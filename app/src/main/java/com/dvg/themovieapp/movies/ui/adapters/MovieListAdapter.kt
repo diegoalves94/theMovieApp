@@ -1,13 +1,17 @@
-package com.dvg.themovieapp.movies.adapters
+package com.dvg.themovieapp.movies.ui.adapters
 
+import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bumptech.glide.Glide
+import com.dvg.themovieapp.R
 import com.dvg.themovieapp.databinding.FragmentMovieItemBinding
 import com.dvg.themovieapp.movies.models.Movie
 
 class MovieListAdapter(
+    val context: Context,
     private val listener: OnMovieItemClickListener
 ) : RecyclerView.Adapter<MovieListAdapter.ViewHolder>() {
 
@@ -40,6 +44,11 @@ class MovieListAdapter(
         val view: View = binding.root
         fun bindItem(movie: Movie) {
             binding.movie = movie
+            Glide.with(context)
+                .load(movie.getBannerImagePath())
+                .placeholder(R.drawable.placeholder)
+                .centerCrop()
+                .into(binding.ivImage)
             binding.executePendingBindings()
         }
     }
