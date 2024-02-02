@@ -6,7 +6,7 @@
 
         <variable
             name="movie"
-            type="com.dvg.themovieapp.movies.models.Movie" />
+            type="com.dvg.themovieapp.movies.data.local.entities.Movie" />
     </data>
 
     <LinearLayout

@@ -1,28 +1,28 @@
 package com.dvg.themovieapp.movies.ui.viewmodels
 
+import android.app.Application
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dvg.themovieapp.movies.data.local.db.MovieDatabase
 import com.dvg.themovieapp.movies.data.remote.api.MoviesDbApi.movieService
-import com.dvg.themovieapp.movies.models.DataState
-import com.dvg.themovieapp.movies.models.Event
-import com.dvg.themovieapp.movies.models.Movie
+import com.dvg.themovieapp.movies.data.models.DataState
+import com.dvg.themovieapp.movies.data.local.entities.Movie
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
-class MovieViewModel : ViewModel() {
+class MovieViewModel(
+    application: Application
+) : AndroidViewModel(application) {
+
+    private val movieDatabase = MovieDatabase.getDatabase(application)
+    private val movieDao = movieDatabase.getMovieDao()
 
     val movieListLiveData: LiveData<List<Movie>?>
         get() = _movieListLiveData
     private val _movieListLiveData = MutableLiveData<List<Movie>?>()
-
-    val movieDetailsLiveData: LiveData<Movie>
-        get() = _movieDetailsLiveData
-    private val _movieDetailsLiveData = MutableLiveData<Movie>()
-
-    val navigationToDetailsLiveData
-        get() = _navigationToDetailsLiveData
-    private val _navigationToDetailsLiveData = MutableLiveData<Event<Unit>>()
 
     val appState: LiveData<DataState>
         get() = _appState
@@ -35,23 +35,43 @@ class MovieViewModel : ViewModel() {
     private fun getMoviesData() {
         _appState.postValue(DataState.LOADING)
         viewModelScope.launch {
-            val response = movieService.getMoviesList("en", "1")
+            try {
+                val response = movieService.getMoviesList("en", "1")
 
-            if (response.isSuccessful) {
-                _movieListLiveData.postValue(response.body()?.results)
-                _appState.postValue(DataState.SUCCESS)
-            } else {
-                _appState.postValue(DataState.ERROR)
+                if (response.isSuccessful) {
+                    val moviesList = response.body()?.results
+
+                    moviesList?.let {
+                        saveMoviesData(it)
+                    }
+
+                    _movieListLiveData.postValue(moviesList)
+                    _appState.postValue(DataState.SUCCESS)
+                } else {
+                    handleError()
+                }
+            } catch (e: Exception) {
+                handleError()
+                Log.e("CALL_MOVIE_LIST", e.message.toString())
             }
         }
     }
 
+    private suspend fun saveMoviesData(movieList: List<Movie>) {
+        movieDao.clearMoviesData()
+        movieDao.insertList(movieList)
+    }
 
-    fun onMovieSelected(position: Int) {
-        val movieDetails = _movieListLiveData.value?.get(position)
-        movieDetails.let {
-            _movieDetailsLiveData.value = it
-            _navigationToDetailsLiveData.postValue(Event(Unit))
+    private suspend fun loadLocalMoviesData() = movieDao.getAllMovies()
+
+    private suspend fun handleError() {
+        val moviesList = loadLocalMoviesData()
+        if (moviesList.isNullOrEmpty()) {
+            _appState.postValue(DataState.ERROR)
+        } else {
+            _movieListLiveData.postValue(moviesList)
+            _appState.postValue(DataState.SUCCESS)
         }
     }
+
 }

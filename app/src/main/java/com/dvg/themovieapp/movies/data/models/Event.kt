@@ -1,4 +1,4 @@
-package com.dvg.themovieapp.movies.models
+package com.dvg.themovieapp.movies.data.models
 
 class Event<out T>(private val content: T) {
 

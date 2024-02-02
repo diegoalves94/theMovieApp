@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.dvg.themovieapp.databinding.FragmentMovieItemBinding
-import com.dvg.themovieapp.movies.models.Movie
+import com.dvg.themovieapp.movies.data.local.entities.Movie
 
 class MovieListAdapter(
     private val listener: OnMovieItemClickListener
