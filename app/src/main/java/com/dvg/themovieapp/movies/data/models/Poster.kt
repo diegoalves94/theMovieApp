@@ -1,9 +1,9 @@
-package com.dvg.themovieapp.movies.models
+package com.dvg.themovieapp.movies.data.models
 
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class Backdrop(
+data class Poster(
     val aspect_ratio: Double?,
     val file_path: String?,
     val height: Int?,

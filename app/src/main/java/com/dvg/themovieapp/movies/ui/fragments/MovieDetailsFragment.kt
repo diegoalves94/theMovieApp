@@ -11,7 +11,6 @@ import androidx.navigation.navGraphViewModels
 import com.dvg.themovieapp.R
 import com.dvg.themovieapp.databinding.FragmentMovieDetailsBinding
 import com.dvg.themovieapp.movies.ui.viewmodels.MovieDetailsViewModel
-
 class MovieDetailsFragment : Fragment() {
 
     private lateinit var binding: FragmentMovieDetailsBinding
