@@ -1,28 +1,21 @@
 package com.dvg.themovieapp.movies.ui.viewmodels
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.dvg.themovieapp.movies.data.local.db.MovieDatabase
-import com.dvg.themovieapp.movies.data.remote.api.MoviesDbApi.movieService
-import com.dvg.themovieapp.movies.data.models.DataState
 import com.dvg.themovieapp.movies.data.local.entities.MovieDetail
 import com.dvg.themovieapp.movies.data.local.entities.MovieMedia
-import com.dvg.themovieapp.movies.data.local.entities.MovieMediaAll
+import com.dvg.themovieapp.movies.data.models.DataState
+import com.dvg.themovieapp.movies.repository.MovieDetailsRepository
 import kotlinx.coroutines.launch
-import java.lang.Exception
 
 class MovieDetailsViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val movieDatabase = MovieDatabase.getDatabase(application)
-    private val movieDetailsDao = movieDatabase.getMovieDetailDao()
-    private val movieMediaDao = movieDatabase.getMovieMediaDao(movieDatabase)
-
+    private val movieDetailRepository = MovieDetailsRepository(application)
 
     private val selectedMovieId: LiveData<Int>
         get() = _selectedMovieId
@@ -49,54 +42,16 @@ class MovieDetailsViewModel(
         _movieState.postValue(DataState.LOADING)
 
         viewModelScope.launch {
-            try {
-                val response = movieService.getMovieDetails(selectedMovieId.value!!, "en")
-
-                if (response.isSuccessful) {
-                    val movieResponse = response.body()
-
-                    movieResponse?.let {
-                        val movieDetails = MovieDetail(
-                            it.id,
-                            it.title,
-                            it.overview,
-                            it.release_date,
-                            it.vote_average,
-                            it.poster_path
-                        )
-
-                        saveMovieDetailData(movieDetails)
-
-                        _movieDetailsLiveData.postValue(movieDetails)
-                        _movieState.postValue(DataState.SUCCESS)
-                    }
-
-                } else {
-                    handleMovieDetailsError()
+            val movieDetails = movieDetailRepository.getMovieDetailsData(id)
+            movieDetails.fold(
+                onSuccess = {
+                    _movieDetailsLiveData.postValue(it)
+                    _movieState.postValue(DataState.SUCCESS)
+                },
+                onFailure = {
+                    _movieState.postValue(DataState.ERROR)
                 }
-            } catch (e: Exception) {
-                handleMovieDetailsError()
-                Log.e("CALL_MOVIE_DETAILS", e.message.toString())
-            }
-        }
-    }
-
-    private suspend fun saveMovieDetailData(movieDetails: MovieDetail) {
-        movieDetailsDao.clearMovieDetailsData(movieDetails.id)
-        movieDetailsDao.insert(movieDetails)
-    }
-
-    private suspend fun loadLocalMovieDetailsData() =
-        movieDetailsDao.getMovieDetails(selectedMovieId.value!!)
-
-    private suspend fun handleMovieDetailsError() {
-        val movieDetails = loadLocalMovieDetailsData()
-
-        if (movieDetails != null) {
-            _movieDetailsLiveData.postValue(movieDetails)
-            _movieState.postValue(DataState.SUCCESS)
-        } else {
-            _movieState.postValue(DataState.ERROR)
+            )
         }
     }
 
@@ -105,63 +60,16 @@ class MovieDetailsViewModel(
         _imagesCarouselState.postValue(DataState.LOADING)
 
         viewModelScope.launch {
-            try {
-                val response = movieService.getMovieMedia(selectedMovieId.value!!)
-
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        if (it.backdrops.isNullOrEmpty()) {
-                            handleMovieMediaError()
-                            _imagesCarouselState.postValue(DataState.ERROR)
-                        } else {
-                            val movieMedia = MovieMedia(
-                                it.id,
-                                it.backdrops
-                            )
-
-                            saveMovieMediaData(movieMedia)
-
-                            _movieImagesLiveData.value = movieMedia
-                            _imagesCarouselState.postValue(DataState.SUCCESS)
-                        }
-                    }
-                } else {
-                    handleMovieMediaError()
+            val movieMedia = movieDetailRepository.getMovieMediaData(selectedMovieId.value!!)
+            movieMedia.fold(
+                onSuccess = {
+                    _movieImagesLiveData.value = it
+                    _imagesCarouselState.postValue(DataState.SUCCESS)
+                },
+                onFailure = {
                     _imagesCarouselState.postValue(DataState.ERROR)
                 }
-            } catch (e: Exception) {
-                handleMovieMediaError()
-                Log.e("CALL_MOVIE_MEDIA", e.message.toString())
-            }
-        }
-    }
-
-    private suspend fun saveMovieMediaData(movieMedia: MovieMedia) {
-        movieMediaDao.clearMoviesMediaData(selectedMovieId.value!!)
-        movieMediaDao.insertMovieMedia(movieMedia)
-    }
-
-    private suspend fun loadLocalMovieMediaData() =
-        mapMovieMediaAllToMovieMedia(movieMediaDao.getMovieMedia(selectedMovieId.value!!))
-
-    private fun mapMovieMediaAllToMovieMedia(movieMediaAll: MovieMediaAll): MovieMedia {
-        return if (movieMediaAll != null) {
-            movieMediaAll.movieMedia.movieId = movieMediaAll.movieMedia.movieId
-            movieMediaAll.movieMedia.backdrops = movieMediaAll.backdrop
-
-            movieMediaAll.movieMedia
-        } else {
-            return MovieMedia(null, null)
-        }
-    }
-
-    private suspend fun handleMovieMediaError() {
-        val movieMedia = loadLocalMovieMediaData()
-        if (movieMedia.backdrops.isNullOrEmpty()) {
-            _imagesCarouselState.postValue(DataState.ERROR)
-        } else {
-            _movieImagesLiveData.postValue(movieMedia)
-            _imagesCarouselState.postValue(DataState.SUCCESS)
+            )
         }
     }
 

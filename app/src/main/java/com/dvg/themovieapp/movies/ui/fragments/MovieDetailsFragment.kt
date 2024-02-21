@@ -1,16 +1,17 @@
 package com.dvg.themovieapp.movies.ui.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.navGraphViewModels
 import com.dvg.themovieapp.R
 import com.dvg.themovieapp.databinding.FragmentMovieDetailsBinding
 import com.dvg.themovieapp.movies.ui.viewmodels.MovieDetailsViewModel
+
 class MovieDetailsFragment : Fragment() {
 
     private lateinit var binding: FragmentMovieDetailsBinding
@@ -40,10 +41,10 @@ class MovieDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        getMovieDetailsFromApi()
+        getMovieDetails()
     }
 
-    private fun getMovieDetailsFromApi() {
+    private fun getMovieDetails() {
         viewModel.setMovieData(args.argMovieId)
         viewModel.setMovieImageCarousel()
     }

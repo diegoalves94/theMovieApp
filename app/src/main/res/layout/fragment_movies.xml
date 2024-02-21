@@ -23,6 +23,7 @@
             android:name="com.dvg.themovieapp.movies.fragments.MoviesFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:scrollbars="vertical"
             android:visibility="@{viewModel.appState == DataState.SUCCESS ? View.VISIBLE : View.GONE}"
             app:layoutManager="LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
